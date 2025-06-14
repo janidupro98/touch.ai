@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TOUCH.AI </title>
+  <style>
+    /* === RESET === */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      height: 100%;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      transition: background 0.5s ease;
+      /* overflow: hidden; */   /* REMOVE or comment out this line */
+      color: #fff;
+    }
+    body.theme-light {
+      background: linear-gradient(135deg, #f0f0f0, #dfe9f3);
+      color: #111;
+    }
+
+    /* === SIDEBAR === */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 80px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top-right-radius: 30px;
+      border-bottom-right-radius: 30px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.37);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 0;
+      gap: 30px;
+      transition: background 0.3s ease;
+      z-index: 1000;
+    }
+    body.theme-light .sidebar {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .sidebar button {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 28px;
+      cursor: pointer;
+      padding: 10px;
+      border-radius: 15px;
+      transition: all 0.3s ease;
+      filter: drop-shadow(0 0 5px rgba(0, 255, 255, 0.6));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 50px;
+      height: 50px;
+    }
+    body.theme-light .sidebar button {
+      color: #111;
+      filter: drop-shadow(0 0 4px rgba(0, 100, 255, 0.7));
+    }
+    .sidebar button:hover {
+      box-shadow:
+        0 0 10px #00fff7,
+        0 0 20px #00fff7,
+        0 0 30px #00fff7,
+        0 0 40px #00fff7;
+      transform: translateY(-5px);
+      transition: box-shadow 0.3s ease, transform 0.3s ease;
+    }
+
+    /* === MAIN CONTAINER === */
+    .container {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      margin-left: 100px; /* leave space for sidebar */
+      position: relative;
+    }
+
+    .glass-card {
+      width: 100%;
+      max-width: 700px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      box-shadow:
+        0 4px 30px rgba(0, 0, 0, 0.5),
+        inset 0 0 20px rgba(0, 255, 255, 0.25);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 30px;
+      color: #fff;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    body.theme-light .glass-card {
+      background: rgba(255, 255, 255, 0.4);
+      color: #111;
+      box-shadow:
+        0 4px 30px rgba(255, 255, 255, 0.3),
+        inset 0 0 20px rgba(0, 0, 255, 0.2);
+    }
+
+    h2 {
+      font-size: 26px;
+      margin-bottom: 20px;
+      text-align: center;
+      text-shadow: 0 0 10px #00fff7;
+    }
+
+    textarea {
+      width: 100%;
+      height: 120px;
+      border: none;
+      outline: none;
+      border-radius: 10px;
+      padding: 15px;
+      font-size: 16px;
+      resize: none;
+      background: rgba(255, 255, 255, 0.1);
+      color: inherit;
+      backdrop-filter: blur(10px);
+      transition: background 0.3s ease;
+      box-shadow: inset 0 0 8px rgba(0, 255, 255, 0.4);
+      text-shadow: none;
+    }
+    textarea::placeholder {
+      color: #ccc;
+    }
+    body.theme-light textarea {
+      background: rgba(255, 255, 255, 0.5);
+      color: #111;
+    }
+
+    .btn-group {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    button.generate-btn {
+      flex: 1 1 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      background: rgba(0, 255, 255, 0.7);
+      color: #000;
+      font-weight: 700;
+      cursor: pointer;
+      animation: pulse 2.5s infinite;
+      box-shadow: 0 0 12px #00fff7;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+    button.generate-btn:hover {
+      background: rgba(0, 255, 255, 0.9);
+      transform: scale(1.05);
+      box-shadow:
+        0 0 20px #00fff7,
+        0 0 30px #00fff7;
+    }
+
+    button.secondary-btn {
+      flex: 1 1 45%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 5px #00fff7;
+    }
+    button.secondary-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+      box-shadow:
+        0 0 12px #00fff7,
+        0 0 20px #00fff7;
+    }
+    body.theme-light button.secondary-btn {
+      background: rgba(0, 0, 0, 0.05);
+      color: #111;
+      box-shadow: 0 0 5px #0077ff;
+    }
+
+    #response {
+      margin-top: 25px;
+      padding: 15px;
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.2);
+      color: white;
+      white-space: pre-wrap;
+      min-height: 80px;
+      max-height: 250px;   /* Add this line */
+      overflow-y: auto;    /* Add this line */
+      box-shadow: inset 0 0 10px #00fff7;
+      transition: background 0.3s ease;
+    }
+    body.theme-light #response {
+      background: rgba(0, 0, 0, 0.05);
+      color: #111;
+      box-shadow: inset 0 0 10px #0077ff;
+    }
+
+    /* === THEME TOGGLE === */
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1100;
+    }
+
+    .theme-toggle button {
+      background: rgba(255, 255, 255, 0.15);
+      border: none;
+      border-radius: 50%;
+      padding: 10px 14px;
+      font-size: 20px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      backdrop-filter: blur(10px);
+      color: white;
+      transition: all 0.3s ease;
+      filter: drop-shadow(0 0 3px #00fff7);
+    }
+    body.theme-light .theme-toggle button {
+      background: rgba(0, 0, 0, 0.1);
+      color: #111;
+      filter: drop-shadow(0 0 3px #0077ff);
+    }
+    .theme-toggle button:hover {
+      filter: drop-shadow(0 0 8px #00fff7);
+      transform: scale(1.1);
+    }
+
+    /* === ANIMATIONS === */
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 12px #00fff7;
+      }
+      50% {
+        box-shadow: 0 0 30px #00fff7;
+      }
+      100% {
+        box-shadow: 0 0 12px #00fff7;
+      }
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.153.0/build/three.min.js"></script>
+</head>
+<body>
+  <canvas id="bg3d" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;pointer-events:none;"></canvas>
+  <!-- Sidebar -->
+  <nav class="sidebar" aria-label="Sidebar navigation">
+    <button title="Home" onclick="alert('Home clicked')">🏠</button>
+    <button title="Generate" onclick="sendPrompt()">✨</button>
+    <button title="Clear" onclick="clearPrompt()">🗑️</button>
+    <button title="Speak" onclick="speakResponse()">🗣️</button>
+    <button title="Toggle Theme" onclick="toggleTheme()">🌗</button>
+  </nav>
+
+  <!-- Theme toggle at top right (optional duplicate for UX) -->
+  <div class="theme-toggle">
+    <button onclick="toggleTheme()">🌙</button>
+  </div>
+
+  <!-- Main content -->
+  <main class="container" role="main">
+    <section class="glass-card" aria-label="TOUCH Generator Chat Panel">
+      <h2><center>TOUCH.AI </center> </h2>
+      <textarea id="prompt" placeholder="Enter your prompt here..." aria-label="Prompt input"></textarea>
+      <div class="btn-group">
+        <button class="generate-btn" onclick="sendPrompt()">Generate</button>
+        <button class="secondary-btn" onclick="clearPrompt()">Clear</button>
+        <button class="secondary-btn" onclick="speakResponse()">🔊 Speak</button>
+        <button class="secondary-btn" onclick="stopSpeaking()">⏹️ Stop</button>
+      </div>
+      <div id="response" aria-live="polite" aria-atomic="true">Your AI output will appear here...</div>
+    </section>
+  </main>
+
+  <script>
+    const API_KEY = "AIzaSyAVtQ7ZXtMRKaOVLwCGU4MjXadpwq4krxA"; // Replace with your real key
+    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
+
+    async function sendPrompt() {
+      const prompt = document.getElementById("prompt").value.trim();
+      const responseDiv = document.getElementById("response");
+      if (!prompt) {
+        responseDiv.innerText = "Please enter a prompt.";
+        return;
+      }
+      responseDiv.innerText = "Generating...";
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }]
+          })
+        });
+
+        if (!res.ok) throw new Error(`Status ${res.status}`);
+
+        const data = await res.json();
+        const output = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response received.";
+        responseDiv.innerText = output;
+      } catch (error) {
+        responseDiv.innerText = "Error: " + error.message;
+      }
+    }
+
+    function clearPrompt() {
+      document.getElementById("prompt").value = "";
+      document.getElementById("response").innerText = "";
+    }
+
+    let isSpeaking = false;
+    let utter = null;
+
+    function speakResponse() {
+      const synth = window.speechSynthesis;
+      const text = document.getElementById("response").innerText;
+      if (!text) return;
+
+      if (isSpeaking) {
+        synth.cancel();
+        isSpeaking = false;
+        return;
+      }
+
+      utter = new SpeechSynthesisUtterance(text);
+
+      // Try to use Sinhala voice if available
+      utter.lang = "si-LK";
+      // Optionally, pick a Sinhala voice if available
+      const voices = synth.getVoices();
+      const siVoice = voices.find(v => v.lang === "si-LK");
+      if (siVoice) utter.voice = siVoice;
+
+      isSpeaking = true;
+      utter.onend = () => { isSpeaking = false; };
+      synth.speak(utter);
+    }
+
+    function stopSpeaking() {
+      const synth = window.speechSynthesis;
+      if (isSpeaking) {
+        synth.cancel();
+        isSpeaking = false;
+      }
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle("theme-light");
+      const btns = document.querySelectorAll(".theme-toggle button, .sidebar button[title='Toggle Theme']");
+      const isLight = document.body.classList.contains("theme-light");
+      btns.forEach(btn => {
+        btn.textContent = isLight ? "☀️" : "🌙";
+      });
+    }
+
+    // 3D Animated Dynamic Background with Three.js
+    const canvas = document.getElementById('bg3d');
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x000000, 0);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
+    camera.position.z = 7;
+
+    // Lighting
+    const ambient = new THREE.AmbientLight(0xffffff, 0.7);
+    scene.add(ambient);
+    const point = new THREE.PointLight(0x00fff7, 1, 100);
+    point.position.set(10, 10, 10);
+    scene.add(point);
+
+    // 3D objects and colors
+    const geometries = [
+      new THREE.TorusKnotGeometry(1.2, 0.4, 120, 16),
+      new THREE.IcosahedronGeometry(1.5, 1),
+      new THREE.TorusGeometry(1.5, 0.5, 16, 100),
+      new THREE.OctahedronGeometry(1.3, 1),
+      new THREE.DodecahedronGeometry(1.4, 0)
+    ];
+    const baseColors = [0x00fff7, 0xffaf7b, 0x43cea2, 0x8e2de2, 0xf7971e];
+
+    let meshIndex = 0;
+    let colorIndex = 0;
+    let mesh = new THREE.Mesh(
+      geometries[meshIndex],
+      new THREE.MeshPhysicalMaterial({
+        color: baseColors[colorIndex],
+        metalness: 0.7,
+        roughness: 0.2,
+        transparent: true,
+        opacity: 0.7
+      })
+    );
+    scene.add(mesh);
+
+    // Responsive
+    window.addEventListener('resize', () => {
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+    });
+
+    // Helper for smooth color transitions
+    function lerpColor(a, b, t) {
+      return a + (b - a) * t;
+    }
+    function lerpColorHex(a, b, t) {
+      const ar = (a >> 16) & 0xff, ag = (a >> 8) & 0xff, ab = a & 0xff;
+      const br = (b >> 16) & 0xff, bg = (b >> 8) & 0xff, bb = b & 0xff;
+      const rr = Math.round(lerpColor(ar, br, t));
+      const rg = Math.round(lerpColor(ag, bg, t));
+      const rb = Math.round(lerpColor(ab, bb, t));
+      return (rr << 16) | (rg << 8) | rb;
+    }
+
+    // Dynamic state
+    let nextShapeTime = 0;
+    let nextColorTime = 0;
+    let nextLightTime = 0;
+    let nextSpeedTime = 0;
+    let targetColor = baseColors[0];
+    let targetLightColor = 0x00fff7;
+    let targetSpeed = { x: 0.008, y: 0.012 };
+    let speed = { x: 0.008, y: 0.012 };
+    let t = 0;
+
+    function animate() {
+      requestAnimationFrame(animate);
+      t += 0.01;
+
+      // Smoothly rotate
+      mesh.rotation.x += speed.x;
+      mesh.rotation.y += speed.y;
+
+      // Smoothly change mesh color
+      const currentColor = mesh.material.color.getHex();
+      if (currentColor !== targetColor) {
+        const lerped = lerpColorHex(currentColor, targetColor, 0.03);
+      }
+
+      // Smoothly change rotation speed
+      speed.x += (targetSpeed.x - speed.x) * 0.03;
+      speed.y += (targetSpeed.y - speed.y) * 0.03;
+
+      // Every 7-12 seconds, morph to a new shape
+      if (t > nextShapeTime) {
+        scene.remove(mesh);
+        meshIndex = Math.floor(Math.random() * geometries.length);
+        mesh = new THREE.Mesh(
+          geometries[meshIndex],
+          new THREE.MeshPhysicalMaterial({
+            color: mesh.material.color.getHex(),
+            metalness: 0.7,
+            roughness: 0.2,
+            transparent: true,
+            opacity: 0.7
+          })
+        );
+        scene.add(mesh);
+        nextShapeTime = t + 7 + Math.random() * 5;
+      }
+
+      // Every 4-8 seconds, pick a new target color
+      if (t > nextColorTime) {
+        colorIndex = Math.floor(Math.random() * baseColors.length);
+        targetColor = baseColors[colorIndex];
+        nextColorTime = t + 4 + Math.random() * 4;
+      }
+
+      // Every 5-10 seconds, pick a new light color
+      if (t > nextLightTime) {
+        targetLightColor = baseColors[Math.floor(Math.random() * baseColors.length)];
+        nextLightTime = t + 5 + Math.random() * 5;
+      }
+
+      // Every 6-12 seconds, pick a new rotation speed
+      if (t > nextSpeedTime) {
+        targetSpeed = {
+          x: 0.005 + Math.random() * 0.02,
+          y: 0.008 + Math.random() * 0.025
+        };
+        nextSpeedTime = t + 6 + Math.random() * 6;
+      }
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // Auto-changing background gradients
+    const gradients = [
+      "linear-gradient(135deg, #0f2027, #203a43, #2c5364)",
+      "linear-gradient(135deg, #f7971e, #ffd200, #f7971e)",
+      "linear-gradient(135deg, #00c6ff, #0072ff)",
+      "linear-gradient(135deg, #f953c6, #b91d73)",
+      "linear-gradient(135deg, #43cea2, #185a9d)",
+      "linear-gradient(135deg, #ffaf7b, #d76d77, #3a1c71)"
+    ];
+    let bgIndex = 0;
+
+    function autoChangeBackground() {
+      if (!document.body.classList.contains("theme-light")) {
+        document.body.style.background = gradients[bgIndex];
+        bgIndex = (bgIndex + 1) % gradients.length;
+      }
+    }
+    setInterval(autoChangeBackground, 10000); // Change every 10 seconds
+  </script>
+</body>
+</html>
+
